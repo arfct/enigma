@@ -1,7 +1,10 @@
-# Hwæt!
+# Enigma
 
 Text to IPA phonemes, entirely in the browser. No server, no API, works offline
 once loaded.
+
+Named for the **engma** — ŋ, U+014B, the velar nasal at the end of *sing* — which
+sits one letter away from the project's own name and serves as its logo.
 
 Type or paste text and the phonemic transcription appears beneath it, set in
 [Gentium](https://software.sil.org/gentium/) or one of four other SIL faces

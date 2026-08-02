@@ -90,6 +90,15 @@ h1 {
   color: var(--muted);
 }
 
+h1 abbr {
+  text-decoration: none;
+  cursor: help;
+}
+
+h1 .eng {
+  color: var(--accent);
+}
+
 .controls {
   position: relative;
   display: flex;
