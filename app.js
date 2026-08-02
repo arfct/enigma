@@ -351,6 +351,29 @@ fontSelect.addEventListener('change', () => {
   output.style.setProperty('--output-font', font === 'system-ui' ? font : `'${font}'`);
 });
 
+// A select's natural width fits its longest option, leaving short values adrift in a
+// wide box, so size each one to the option actually chosen.
+const measure = document.createElement('span');
+measure.style.cssText = 'position:absolute;visibility:hidden;white-space:pre';
+document.body.append(measure);
+
+function fitSelect(select) {
+  const option = select.selectedOptions[0];
+  if (!option) return;
+  const style = getComputedStyle(select);
+  measure.style.font = style.font;
+  measure.textContent = option.textContent;
+  select.style.width = `${Math.ceil(measure.offsetWidth + parseFloat(style.paddingRight)) + 4}px`;
+}
+
+function fitAllSelects() {
+  document.querySelectorAll('select').forEach(fitSelect);
+}
+
+document.addEventListener('change', event => {
+  if (event.target.matches('select')) fitSelect(event.target);
+});
+
 // The panel hangs from its own trigger, which can sit anywhere in a wrapping row, so
 // nudge it back inside the viewport rather than letting it hang off the edge.
 const optionsMenu = document.querySelector('.options');
@@ -374,9 +397,11 @@ renderPresets();
 document.getElementById('presets').value = 'About';
 input.value = ABOUT_TEXT;
 fitInput();
+fitAllSelects();
 
 try {
   await populateVoices();
+  fitSelect(voiceSelect);
   await transcribe();
 } catch (err) {
   output.innerHTML = `<span class="error">Failed to load espeak-ng: ${err.message}</span>`;
