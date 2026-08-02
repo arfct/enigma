@@ -1,0 +1,208 @@
+@font-face {
+  font-family: 'Gentium';
+  src: url('fonts/Gentium-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Gentium';
+  src: url('fonts/Gentium-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Gentium Book';
+  src: url('fonts/GentiumBook-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Charis';
+  src: url('fonts/Charis-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Doulos SIL';
+  src: url('fonts/DoulosSIL-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Andika';
+  src: url('fonts/Andika-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg: #fbfaf7;
+  --ink: #22201d;
+  --accent: #9a4f28;
+  --muted: #9b958c;
+  --border: #e6e2da;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1815;
+    --ink: #eae5dc;
+    --accent: #e0a271;
+    --muted: #837c72;
+    --border: #33302a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Gentium', Georgia, serif;
+  line-height: 1.5;
+}
+
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+
+h1 {
+  margin: 0 0 2rem;
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+select {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--muted);
+  max-width: 11rem;
+  text-overflow: ellipsis;
+  padding: 0.4rem 1.2em 0.4rem 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 0.45em top 55%, right 0.15em top 55%;
+  background-size: 0.3em 0.3em;
+  background-repeat: no-repeat;
+}
+
+select:hover,
+select:focus {
+  color: var(--accent);
+  outline: none;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 3rem;
+  overflow: hidden;
+  resize: none;
+  font: inherit;
+  font-size: 1.15rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+}
+
+textarea:focus {
+  outline: none;
+}
+
+output {
+  display: block;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--output-font, 'Gentium'), Georgia, serif;
+  font-size: 1.6rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+output b {
+  font-weight: 400;
+}
+
+/* θ is drawn at ascender height and towers over neighbouring lowercase. Gentium's
+   small-cap alternate is shorter but reshapes it into a capital-looking Θ, so scale
+   the true glyph down instead. */
+output .theta {
+  font-size: 0.86em;
+}
+
+output .primary {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+output .secondary {
+  color: var(--accent);
+  opacity: 0.55;
+}
+
+@media (max-width: 34rem) {
+  main {
+    padding: 2rem 1.1rem 3rem;
+  }
+
+  h1 {
+    margin-bottom: 1.25rem;
+  }
+
+  .controls {
+    gap: 0.15rem 1rem;
+  }
+
+  select {
+    max-width: 9.5rem;
+  }
+
+  output {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    font-size: 1.3rem;
+  }
+}
+
+.status,
+.error {
+  font-family: 'Gentium', Georgia, serif;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.error {
+  color: #b3403a;
+}

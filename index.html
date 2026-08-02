@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phonography</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Phonography</h1>
+
+    <div class="controls">
+      <select id="presets" aria-label="Preset texts">
+        <option value="" selected>Presets…</option>
+      </select>
+      <select id="voice" aria-label="Dialect"></select>
+      <select id="font" aria-label="Output font">
+        <option value="Gentium" selected>Gentium</option>
+        <option value="Gentium Book">Gentium Book</option>
+        <option value="Charis">Charis</option>
+        <option value="Doulos SIL">Doulos SIL</option>
+        <option value="Andika">Andika</option>
+        <option value="system-ui">System</option>
+      </select>
+      <select id="stress" aria-label="Stress display">
+        <option value="accents" selected>Accent marks</option>
+        <option value="highlight">Highlighted stress</option>
+        <option value="marks">Stress marks</option>
+        <option value="none">No stress</option>
+      </select>
+    </div>
+
+    <textarea id="input" placeholder="Type or paste text…" autofocus
+      spellcheck="false">We hold these truths to be self-evident</textarea>
+
+    <output id="output" for="input" aria-live="polite">
+      <span class="status">Loading espeak-ng…</span>
+    </output>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
