@@ -11,9 +11,9 @@
 </head>
 <body>
   <main>
-    <h1><abbr title="Enigma, spelled as it sounds">Ɛnɪɡmə</abbr></h1>
-
-    <div class="controls">
+    <header>
+      <h1><abbr title="Enigma, spelled as it sounds">Ɛnɪɡmə</abbr></h1>
+      <div class="controls">
       <select id="presets" aria-label="Preset texts">
         <option value="" selected>Presets…</option>
       </select>
@@ -63,7 +63,8 @@
           </label>
         </div>
       </details>
-    </div>
+      </div>
+    </header>
 
     <textarea id="input" placeholder="Type or paste text…" autofocus
       spellcheck="false"></textarea>
@@ -73,6 +74,17 @@
     </output>
   </main>
 
+  <script>
+    // ES5 on purpose: this must run on browsers that cannot even parse app.js,
+    // so a startup failure reports itself instead of stranding the loading message.
+    window.addEventListener('error', function (event) {
+      var output = document.getElementById('output');
+      if (output && output.querySelector('.status')) {
+        output.innerHTML = '<span class="error">Failed to start: ' +
+          (event.message || 'script error') + '</span>';
+      }
+    });
+  </script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

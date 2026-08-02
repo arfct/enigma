@@ -152,8 +152,11 @@ let currentLines = [];
 let currentPunctuation = [];
 
 // espeak splits its output at clause-terminating punctuation and discards the marks.
-// A period between digits (3.14) is not a break, so it must not match here.
-const CLAUSE_BREAK = /((?:(?<!\d)\.|\.(?!\d)|[,:;?!…—–])+)/g;
+// A period between digits (3.14) is not a break, so decimal points are removed before
+// splitting rather than excluded with lookbehind, which Safari before 16.4 cannot
+// even parse — it kills the whole module and strands the page on its loading message.
+const DECIMAL_POINT = /(\d)\.(?=\d)/g;
+const CLAUSE_BREAK = /([.,:;?!…—–]+)/g;
 
 // espeak emits nothing for a fragment with no letters or digits in it, so only
 // those count as clauses — otherwise a trailing quote after a full stop (know.")
@@ -164,7 +167,9 @@ const OPENING = /^[\s“”"'‘’([{¿¡]*([“"'‘([{¿¡]+)/;
 const CLOSING = /([”"'’)\]}]+)[\s]*$/;
 
 function clausePunctuation(text) {
-  const parts = text.split(CLAUSE_BREAK);
+  // The dropped dot never surfaces: clause bodies only feed word counts and
+  // capitalisation flags, never rendered text.
+  const parts = text.replace(DECIMAL_POINT, '$1').split(CLAUSE_BREAK);
   const clauses = [];
   let insideQuote = false;
   for (let i = 0; i < parts.length; i += 2) {
@@ -374,20 +379,20 @@ document.addEventListener('change', event => {
   if (event.target.matches('select')) fitSelect(event.target);
 });
 
-// The panel hangs from its own trigger, which can sit anywhere in a wrapping row, so
-// nudge it back inside the viewport rather than letting it hang off the edge.
+// The panel is anchored to the trigger's right edge, which is always on-screen — a
+// left anchor let the panel momentarily jut past the viewport and widen the mobile
+// layout before any clamp could run. Only a left-side overflow needs a nudge.
 const optionsMenu = document.querySelector('.options');
 const optionsPanel = optionsMenu.querySelector('.panel');
 const PANEL_MARGIN = 12;
 
 function positionPanel() {
   if (!optionsMenu.open) return;
-  optionsPanel.style.left = '0px';
-  const trigger = optionsMenu.getBoundingClientRect();
-  const width = optionsPanel.offsetWidth;
-  const rightLimit = window.innerWidth - PANEL_MARGIN - width;
-  const x = Math.max(PANEL_MARGIN, Math.min(trigger.left, rightLimit));
-  optionsPanel.style.left = `${x - trigger.left}px`;
+  optionsPanel.style.right = '0px';
+  const rect = optionsPanel.getBoundingClientRect();
+  if (rect.left < PANEL_MARGIN) {
+    optionsPanel.style.right = `${rect.left - PANEL_MARGIN}px`;
+  }
 }
 
 optionsMenu.addEventListener('toggle', positionPanel);
