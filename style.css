@@ -173,17 +173,36 @@ select:focus {
   box-shadow: 0 6px 24px rgb(0 0 0 / 0.09);
 }
 
+.panel-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.2rem 0;
+  color: var(--ink);
+}
+
+.panel-row select {
+  color: var(--ink);
+}
+
+.panel-row:first-child + .panel-row {
+  margin-bottom: 0.75rem;
+}
+
 .panel-label {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   margin: 0 0 0.5rem;
   color: var(--ink);
-}
-
-.panel-label + * + .panel-label {
   padding-top: 0.7rem;
   border-top: 1px solid var(--border);
+}
+
+.panel-label:first-child {
+  padding-top: 0;
+  border-top: none;
 }
 
 .panel-label span {

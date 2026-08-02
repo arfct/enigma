@@ -11,24 +11,31 @@
 </head>
 <body>
   <main>
-    <h1><abbr title="Named for the engma, ŋ — the velar nasal">E<span class="eng">ŋ̇</span>igma</abbr></h1>
+    <h1><abbr title="Named for the engma, ŋ — the velar nasal">E<span class="eng">ŋ̇</span>ma</abbr></h1>
 
     <div class="controls">
       <select id="presets" aria-label="Preset texts">
         <option value="" selected>Presets…</option>
       </select>
-      <select id="voice" aria-label="Dialect"></select>
-      <select id="font" aria-label="Output font">
-        <option value="Gentium" selected>Gentium</option>
-        <option value="Gentium Book">Gentium Book</option>
-        <option value="Charis">Charis</option>
-        <option value="Doulos SIL">Doulos SIL</option>
-        <option value="Andika">Andika</option>
-        <option value="system-ui">System</option>
-      </select>
       <details class="options">
         <summary>Options</summary>
         <div class="panel">
+          <label class="panel-row">
+            <span>Dialect</span>
+            <select id="voice"></select>
+          </label>
+          <label class="panel-row">
+            <span>Font</span>
+            <select id="font">
+              <option value="Gentium" selected>Gentium</option>
+              <option value="Gentium Book">Gentium Book</option>
+              <option value="Charis">Charis</option>
+              <option value="Doulos SIL">Doulos SIL</option>
+              <option value="Andika">Andika</option>
+              <option value="system-ui">System</option>
+            </select>
+          </label>
+
           <p class="panel-label">Stress</p>
           <div class="mode-list">
             <label>
