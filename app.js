@@ -7,6 +7,7 @@ const fontSelect = document.getElementById('font');
 const stressRadios = document.querySelectorAll('input[name="stress"]');
 const lengthRadios = document.querySelectorAll('input[name="length"]');
 const punctuationCheckbox = document.getElementById('punctuation');
+const capitalCheckbox = document.getElementById('capitals');
 
 function stressMode() {
   return document.querySelector('input[name="stress"]:checked').value;
@@ -147,6 +148,7 @@ const CLAUSE_BREAK = /((?:(?<!\d)\.|\.(?!\d)|[,:;?!…—–])+)/g;
 // those count as clauses — otherwise a trailing quote after a full stop (know.")
 // would claim a clause of its own and throw the whole alignment off.
 const SPEAKABLE = /[\p{L}\p{N}]/u;
+const CAPITALISED = /^[^\p{L}]*\p{Lu}/u;
 const OPENING = /^[\s“”"'‘’([{¿¡]*([“"'‘([{¿¡]+)/;
 const CLOSING = /([”"'’)\]}]+)[\s]*$/;
 
@@ -172,7 +174,12 @@ function clausePunctuation(text) {
     for (const character of body) {
       if (character === '"') insideQuote = !insideQuote;
     }
-    clauses.push({ before, after: after + separator });
+    const words = body.trim().split(/\s+/).filter(Boolean);
+    clauses.push({
+      before,
+      after: after + separator,
+      capitals: words.map(word => CAPITALISED.test(word)),
+    });
   }
 
   // A quotation opening mid-clause cannot be placed without word-level alignment,
@@ -195,7 +202,10 @@ function clausePunctuation(text) {
 }
 
 const STRESS_MARKS = /[ˈˌ]/g;
-const VOWEL_RUN = '[iɪyʏeøɛœæaɶɑɒɔoʊuʉɨᵻᵿʌəɚɜɝɐɞɤː˞]+';
+// Uppercase forms are included because preserving capitalization can raise the very
+// vowel that carries the stress, and it must still be found here.
+const VOWELS = 'iɪyʏeøɛœæaɶɑɒɔoʊuʉɨᵻᵿʌəɚɜɝɐɞɤ';
+const VOWEL_RUN = `[${VOWELS}${VOWELS.toUpperCase()}ː˞]+`;
 const PRIMARY_STRESS = new RegExp(`ˈ(${VOWEL_RUN})`, 'g');
 const SECONDARY_STRESS = new RegExp(`ˌ(${VOWEL_RUN})`, 'g');
 const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
@@ -227,10 +237,36 @@ function applyStress(text, mode) {
   return escaped.replace(STRESS_MARKS, '');
 }
 
+// ˈ and ˌ are modifier letters, so \p{L} alone would match the stress tick and
+// "capitalise" that instead of the vowel behind it.
+const BASE_LETTER = character => /\p{L}/u.test(character) && !/\p{Lm}/u.test(character);
+
+function capitaliseWord(word) {
+  const characters = [...word];
+  const first = characters.findIndex(BASE_LETTER);
+  if (first < 0) return word;
+  characters[first] = characters[first].toUpperCase();
+  return characters.join('');
+}
+
+// espeak runs some function words together (to be → təbi) and expands numbers, so a
+// clause's word count often differs from the source. Positional mapping is only safe
+// when the counts agree; otherwise just the opening word, whose position is certain.
+function applyCapitals(line, capitals) {
+  const words = line.split(' ');
+  if (words.length !== capitals.length) {
+    return capitals[0] ? [capitaliseWord(words[0]), ...words.slice(1)].join(' ') : line;
+  }
+  return words.map((word, i) => (capitals[i] ? capitaliseWord(word) : word)).join(' ');
+}
+
 function joinClauses() {
-  if (!punctuationCheckbox.checked) return currentLines.join('\n');
-  if (currentPunctuation.length !== currentLines.length) return currentLines.join('\n');
-  return currentLines
+  const aligned = currentPunctuation.length === currentLines.length;
+  const lines = currentLines.map((line, i) =>
+    aligned && capitalCheckbox.checked ? applyCapitals(line, currentPunctuation[i].capitals) : line
+  );
+  if (!aligned || !punctuationCheckbox.checked) return lines.join('\n');
+  return lines
     .map((line, i) => {
       const { before, after } = currentPunctuation[i];
       const tail = /^[—–]/.test(after) ? ` ${after}` : after;
@@ -243,7 +279,7 @@ function joinClauses() {
 const COMBINING_MACRON = '̄';
 const RAISED_DOT = '·';
 // A long vowel is the base letter, any stress diacritic already placed on it, then ː.
-const LENGTHENED_VOWEL = /([iɪyʏeøɛœæaɶɑɒɔoʊuʉɨᵻᵿʌəɚɜɝɐɞɤ])([̀-ͯ]*)ː/g;
+const LENGTHENED_VOWEL = new RegExp(`([${VOWELS}${VOWELS.toUpperCase()}])([\\u0300-\\u036F]*)ː`, 'g');
 
 function applyLength(text, mode) {
   if (mode === 'dot') return text.replace(/ː/g, RAISED_DOT);
@@ -298,6 +334,7 @@ voiceSelect.addEventListener('change', transcribe);
 stressRadios.forEach(radio => radio.addEventListener('change', render));
 lengthRadios.forEach(radio => radio.addEventListener('change', render));
 punctuationCheckbox.addEventListener('change', render);
+capitalCheckbox.addEventListener('change', render);
 fontSelect.addEventListener('change', () => {
   const font = fontSelect.value;
   output.style.setProperty('--output-font', font === 'system-ui' ? font : `'${font}'`);

@@ -243,6 +243,11 @@ select:focus {
   border-top: 1px solid var(--border);
 }
 
+.check.subsequent {
+  padding-top: 0;
+  border-top: none;
+}
+
 textarea {
   display: block;
   width: 100%;
