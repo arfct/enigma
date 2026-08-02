@@ -3,8 +3,13 @@ import { phonemize, list_voices } from './vendor/phonemizer.js';
 const input = document.getElementById('input');
 const output = document.getElementById('output');
 const voiceSelect = document.getElementById('voice');
-const stressSelect = document.getElementById('stress');
 const fontSelect = document.getElementById('font');
+const stressRadios = document.querySelectorAll('input[name="stress"]');
+const punctuationCheckbox = document.getElementById('punctuation');
+
+function stressMode() {
+  return document.querySelector('input[name="stress"]:checked').value;
+}
 
 const DEFAULT_VOICE = 'en-us';
 
@@ -179,6 +184,7 @@ function applyStress(text, mode) {
 }
 
 function joinClauses() {
+  if (!punctuationCheckbox.checked) return currentLines.join('\n');
   if (currentPunctuation.length !== currentLines.length) return currentLines.join('\n');
   return currentLines
     .map((line, i) => {
@@ -190,7 +196,7 @@ function joinClauses() {
 }
 
 function render() {
-  const marked = applyStress(joinClauses(), stressSelect.value);
+  const marked = applyStress(joinClauses(), stressMode());
   output.innerHTML = marked.replace(/θ/g, '<span class="theta">θ</span>');
 }
 
@@ -231,7 +237,8 @@ function debounce(fn, ms) {
 input.addEventListener('input', fitInput);
 input.addEventListener('input', debounce(transcribe, 200));
 voiceSelect.addEventListener('change', transcribe);
-stressSelect.addEventListener('change', render);
+stressRadios.forEach(radio => radio.addEventListener('change', render));
+punctuationCheckbox.addEventListener('change', render);
 fontSelect.addEventListener('change', () => {
   const font = fontSelect.value;
   output.style.setProperty('--output-font', font === 'system-ui' ? font : `'${font}'`);

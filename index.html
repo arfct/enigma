@@ -23,12 +23,33 @@
         <option value="Andika">Andika</option>
         <option value="system-ui">System</option>
       </select>
-      <select id="stress" aria-label="Stress display">
-        <option value="accents" selected>Accent marks</option>
-        <option value="highlight">Highlighted stress</option>
-        <option value="marks">Stress marks</option>
-        <option value="none">No stress</option>
-      </select>
+      <details class="options">
+        <summary>Options</summary>
+        <div class="panel">
+          <p class="panel-label">Stress</p>
+          <div class="mode-list">
+            <label>
+              <input type="radio" name="stress" value="accents" checked>
+              <span class="sample">á à</span><span class="name">Accent marks</span>
+            </label>
+            <label>
+              <input type="radio" name="stress" value="highlight">
+              <span class="sample"><b class="primary">a</b> <b class="secondary">a</b></span><span class="name">Highlighted</span>
+            </label>
+            <label>
+              <input type="radio" name="stress" value="marks">
+              <span class="sample">ˈa ˌa</span><span class="name">Stress marks</span>
+            </label>
+            <label>
+              <input type="radio" name="stress" value="none">
+              <span class="sample">a a</span><span class="name">None</span>
+            </label>
+          </div>
+          <label class="check">
+            <input type="checkbox" id="punctuation" checked> Include punctuation
+          </label>
+        </div>
+      </details>
     </div>
 
     <textarea id="input" placeholder="Type or paste text…" autofocus
