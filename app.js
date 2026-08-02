@@ -20,9 +20,9 @@ function lengthMode() {
 const DEFAULT_VOICE = 'en-us';
 
 const ABOUT_TEXT =
-  'Enigma turns spelling into sound. Type anything and it reappears below as phonemes: ' +
-  'every vowel, every stress, every sound you actually say — including the engma, ' +
-  'the ŋ that hides at the end of everything.';
+  'Enigma turns plain writing into cryptic script. Type anything and it reappears below ' +
+  'spelled as pure sound: familiar words made suddenly strange, in an alphabet you can ' +
+  'almost read.';
 
 const PRESETS = {
   'About': [
