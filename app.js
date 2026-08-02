@@ -143,16 +143,55 @@ let currentPunctuation = [];
 // A period between digits (3.14) is not a break, so it must not match here.
 const CLAUSE_BREAK = /((?:(?<!\d)\.|\.(?!\d)|[,:;?!…—–])+)/g;
 
+// espeak emits nothing for a fragment with no letters or digits in it, so only
+// those count as clauses — otherwise a trailing quote after a full stop (know.")
+// would claim a clause of its own and throw the whole alignment off.
+const SPEAKABLE = /[\p{L}\p{N}]/u;
+const OPENING = /^[\s“”"'‘’([{¿¡]*([“"'‘([{¿¡]+)/;
+const CLOSING = /([”"'’)\]}]+)[\s]*$/;
+
 function clausePunctuation(text) {
   const parts = text.split(CLAUSE_BREAK);
-  const marks = [];
+  const clauses = [];
+  let insideQuote = false;
   for (let i = 0; i < parts.length; i += 2) {
-    const body = parts[i];
-    const mark = (parts[i + 1] || '').trim();
-    if (body && body.trim()) marks.push(mark);
-    else if (mark && marks.length) marks[marks.length - 1] += mark;
+    const body = parts[i] || '';
+    const separator = (parts[i + 1] || '').trim();
+    if (!SPEAKABLE.test(body)) {
+      if (clauses.length) clauses[clauses.length - 1].after += body.trim() + separator;
+      continue;
+    }
+    let before = (body.match(OPENING) || ['', ''])[1] || '';
+    const after = (body.match(CLOSING) || ['', ''])[1] || '';
+    // A straight quote is shaped the same opening or closing. One starting a clause
+    // while a quotation is already open must be closing the previous clause.
+    if (insideQuote && before.startsWith('"') && clauses.length) {
+      clauses[clauses.length - 1].after += '"';
+      before = before.slice(1);
+    }
+    for (const character of body) {
+      if (character === '"') insideQuote = !insideQuote;
+    }
+    clauses.push({ before, after: after + separator });
   }
-  return marks;
+
+  // A quotation opening mid-clause cannot be placed without word-level alignment,
+  // so drop any closing quote whose partner never made it into the output.
+  let unclosed = 0;
+  for (const clause of clauses) {
+    for (const character of clause.before) {
+      if (character === '"') unclosed++;
+    }
+    clause.after = [...clause.after]
+      .filter(character => {
+        if (character !== '"') return true;
+        if (unclosed === 0) return false;
+        unclosed--;
+        return true;
+      })
+      .join('');
+  }
+  return clauses;
 }
 
 const STRESS_MARKS = /[ˈˌ]/g;
@@ -193,8 +232,9 @@ function joinClauses() {
   if (currentPunctuation.length !== currentLines.length) return currentLines.join('\n');
   return currentLines
     .map((line, i) => {
-      const mark = currentPunctuation[i];
-      return /^[—–]/.test(mark) ? `${line} ${mark}` : line + mark;
+      const { before, after } = currentPunctuation[i];
+      const tail = /^[—–]/.test(after) ? ` ${after}` : after;
+      return before + line + tail;
     })
     .join(' ')
     .trim();
