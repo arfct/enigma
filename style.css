@@ -172,6 +172,11 @@ select:focus {
   color: var(--ink);
 }
 
+.panel-label + * + .panel-label {
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border);
+}
+
 .panel-label span {
   color: var(--muted);
   font-size: 0.8rem;

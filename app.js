@@ -5,10 +5,15 @@ const output = document.getElementById('output');
 const voiceSelect = document.getElementById('voice');
 const fontSelect = document.getElementById('font');
 const stressRadios = document.querySelectorAll('input[name="stress"]');
+const lengthRadios = document.querySelectorAll('input[name="length"]');
 const punctuationCheckbox = document.getElementById('punctuation');
 
 function stressMode() {
   return document.querySelector('input[name="stress"]:checked').value;
+}
+
+function lengthMode() {
+  return document.querySelector('input[name="length"]:checked').value;
 }
 
 const DEFAULT_VOICE = 'en-us';
@@ -195,8 +200,21 @@ function joinClauses() {
     .trim();
 }
 
+const COMBINING_MACRON = '̄';
+const RAISED_DOT = '·';
+// A long vowel is the base letter, any stress diacritic already placed on it, then ː.
+const LENGTHENED_VOWEL = /([iɪyʏeøɛœæaɶɑɒɔoʊuʉɨᵻᵿʌəɚɜɝɐɞɤ])([̀-ͯ]*)ː/g;
+
+function applyLength(text, mode) {
+  if (mode === 'dot') return text.replace(/ː/g, RAISED_DOT);
+  if (mode === 'macron') return text.replace(LENGTHENED_VOWEL, `$1$2${COMBINING_MACRON}`);
+  if (mode === 'double') return text.replace(LENGTHENED_VOWEL, '$1$2$1');
+  return text;
+}
+
 function render() {
-  const marked = applyStress(joinClauses(), stressMode());
+  const stressed = applyStress(joinClauses(), stressMode());
+  const marked = applyLength(stressed, lengthMode());
   output.innerHTML = marked.replace(/θ/g, '<span class="theta">θ</span>');
 }
 
@@ -238,6 +256,7 @@ input.addEventListener('input', fitInput);
 input.addEventListener('input', debounce(transcribe, 200));
 voiceSelect.addEventListener('change', transcribe);
 stressRadios.forEach(radio => radio.addEventListener('change', render));
+lengthRadios.forEach(radio => radio.addEventListener('change', render));
 punctuationCheckbox.addEventListener('change', render);
 fontSelect.addEventListener('change', () => {
   const font = fontSelect.value;
