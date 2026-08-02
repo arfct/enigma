@@ -1,4 +1,4 @@
-# Phonography
+# Hwæt!
 
 Text to IPA phonemes, entirely in the browser. No server, no API, works offline
 once loaded.
