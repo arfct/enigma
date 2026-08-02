@@ -100,7 +100,6 @@ h1 .eng {
 }
 
 .controls {
-  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem 1rem;
@@ -132,6 +131,7 @@ select:focus {
 }
 
 .options {
+  position: relative;
   font-size: 0.9rem;
 }
 

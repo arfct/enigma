@@ -19,7 +19,18 @@ function lengthMode() {
 
 const DEFAULT_VOICE = 'en-us';
 
+const ABOUT_TEXT =
+  'Enigma turns spelling into sound. Type anything and it reappears below as phonemes: ' +
+  'every vowel, every stress, every sound you actually say — including the engma, ' +
+  'the ŋ that hides at the end of everything.';
+
 const PRESETS = {
+  'About': [
+    {
+      label: 'About',
+      text: ABOUT_TEXT,
+    },
+  ],
   'Phonetics passages': [
     {
       label: 'Rainbow Passage',
@@ -340,7 +351,28 @@ fontSelect.addEventListener('change', () => {
   output.style.setProperty('--output-font', font === 'system-ui' ? font : `'${font}'`);
 });
 
+// The panel hangs from its own trigger, which can sit anywhere in a wrapping row, so
+// nudge it back inside the viewport rather than letting it hang off the edge.
+const optionsMenu = document.querySelector('.options');
+const optionsPanel = optionsMenu.querySelector('.panel');
+const PANEL_MARGIN = 12;
+
+function positionPanel() {
+  if (!optionsMenu.open) return;
+  optionsPanel.style.left = '0px';
+  const trigger = optionsMenu.getBoundingClientRect();
+  const width = optionsPanel.offsetWidth;
+  const rightLimit = window.innerWidth - PANEL_MARGIN - width;
+  const x = Math.max(PANEL_MARGIN, Math.min(trigger.left, rightLimit));
+  optionsPanel.style.left = `${x - trigger.left}px`;
+}
+
+optionsMenu.addEventListener('toggle', positionPanel);
+window.addEventListener('resize', positionPanel);
+
 renderPresets();
+document.getElementById('presets').value = 'About';
+input.value = ABOUT_TEXT;
 fitInput();
 
 try {
