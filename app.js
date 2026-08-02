@@ -4,17 +4,17 @@ const input = document.getElementById('input');
 const output = document.getElementById('output');
 const voiceSelect = document.getElementById('voice');
 const fontSelect = document.getElementById('font');
-const stressRadios = document.querySelectorAll('input[name="stress"]');
-const lengthRadios = document.querySelectorAll('input[name="length"]');
+const stressSelect = document.getElementById('stress');
+const lengthSelect = document.getElementById('length');
 const punctuationCheckbox = document.getElementById('punctuation');
 const capitalCheckbox = document.getElementById('capitals');
 
 function stressMode() {
-  return document.querySelector('input[name="stress"]:checked').value;
+  return stressSelect.value;
 }
 
 function lengthMode() {
-  return document.querySelector('input[name="length"]:checked').value;
+  return lengthSelect.value;
 }
 
 const DEFAULT_VOICE = 'en-us';
@@ -342,8 +342,8 @@ function debounce(fn, ms) {
 input.addEventListener('input', fitInput);
 input.addEventListener('input', debounce(transcribe, 200));
 voiceSelect.addEventListener('change', transcribe);
-stressRadios.forEach(radio => radio.addEventListener('change', render));
-lengthRadios.forEach(radio => radio.addEventListener('change', render));
+stressSelect.addEventListener('change', render);
+lengthSelect.addEventListener('change', render);
 punctuationCheckbox.addEventListener('change', render);
 capitalCheckbox.addEventListener('change', render);
 fontSelect.addEventListener('change', () => {

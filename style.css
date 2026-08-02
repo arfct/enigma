@@ -95,10 +95,6 @@ h1 abbr {
   cursor: help;
 }
 
-h1 .eng {
-  color: var(--accent);
-}
-
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -186,38 +182,6 @@ select:focus {
   color: var(--ink);
 }
 
-.panel-row:first-child + .panel-row {
-  margin-bottom: 0.75rem;
-}
-
-.panel-label {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0 0 0.5rem;
-  color: var(--ink);
-  padding-top: 0.7rem;
-  border-top: 1px solid var(--border);
-}
-
-.panel-label:first-child {
-  padding-top: 0;
-  border-top: none;
-}
-
-.panel-label span {
-  color: var(--muted);
-  font-size: 0.8rem;
-  font-style: italic;
-}
-
-.mode-list {
-  display: grid;
-  gap: 0.1rem;
-  margin-bottom: 0.75rem;
-}
-
-.mode-list label,
 .check {
   display: flex;
   align-items: center;
@@ -227,37 +191,13 @@ select:focus {
   cursor: pointer;
 }
 
-.mode-list label:hover {
-  color: var(--accent);
-}
-
-.mode-list input,
 .check input {
   accent-color: var(--accent);
   margin: 0;
 }
 
-.mode-list .sample {
-  min-width: 2.6em;
-  font-size: 1.15rem;
-  color: var(--ink);
-  letter-spacing: 0.08em;
-}
-
-.mode-list .sample b {
-  font-weight: 400;
-  color: var(--accent);
-}
-
-.mode-list .sample b.primary {
-  font-weight: 700;
-}
-
-.mode-list .sample b.secondary {
-  opacity: 0.55;
-}
-
 .check {
+  margin-top: 0.5rem;
   padding-top: 0.6rem;
   border-top: 1px solid var(--border);
 }

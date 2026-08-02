@@ -11,7 +11,7 @@
 </head>
 <body>
   <main>
-    <h1><abbr title="Named for the engma, ŋ — the velar nasal">E<span class="eng">ŋ̇</span>ma</abbr></h1>
+    <h1><abbr title="Enigma, spelled as it sounds">Ɛnɪɡmə</abbr></h1>
 
     <div class="controls">
       <select id="presets" aria-label="Preset texts">
@@ -36,44 +36,24 @@
             </select>
           </label>
 
-          <p class="panel-label">Stress</p>
-          <div class="mode-list">
-            <label>
-              <input type="radio" name="stress" value="accents" checked>
-              <span class="sample">á à</span><span class="name">Accent marks</span>
-            </label>
-            <label>
-              <input type="radio" name="stress" value="highlight">
-              <span class="sample"><b class="primary">a</b> <b class="secondary">a</b></span><span class="name">Highlighted</span>
-            </label>
-            <label>
-              <input type="radio" name="stress" value="marks">
-              <span class="sample">ˈa ˌa</span><span class="name">Stress marks</span>
-            </label>
-            <label>
-              <input type="radio" name="stress" value="none">
-              <span class="sample">a a</span><span class="name">None</span>
-            </label>
-          </div>
-          <p class="panel-label">Vowel length</p>
-          <div class="mode-list">
-            <label>
-              <input type="radio" name="length" value="standard">
-              <span class="sample">aː</span><span class="name">Triangular colon</span>
-            </label>
-            <label>
-              <input type="radio" name="length" value="dot">
-              <span class="sample">a·</span><span class="name">Raised dot</span>
-            </label>
-            <label>
-              <input type="radio" name="length" value="macron">
-              <span class="sample">ā</span><span class="name">Macron</span>
-            </label>
-            <label>
-              <input type="radio" name="length" value="double" checked>
-              <span class="sample">aa</span><span class="name">Doubling</span>
-            </label>
-          </div>
+          <label class="panel-row">
+            <span>Stress</span>
+            <select id="stress">
+              <option value="accents" selected>Accents á à</option>
+              <option value="highlight">Highlighted</option>
+              <option value="marks">Marks ˈa ˌa</option>
+              <option value="none">None</option>
+            </select>
+          </label>
+          <label class="panel-row">
+            <span>Vowel length</span>
+            <select id="length">
+              <option value="double" selected>Doubling aa</option>
+              <option value="standard">Colon aː</option>
+              <option value="dot">Raised dot a·</option>
+              <option value="macron">Macron ā</option>
+            </select>
+          </label>
 
           <label class="check">
             <input type="checkbox" id="punctuation" checked> Include punctuation
