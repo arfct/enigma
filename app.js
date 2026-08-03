@@ -261,6 +261,7 @@ const VOWELS = 'iɪyʏeøɛœæaɶɑɒɔoʊuʉɨᵻᵿʌəɚɜɝɐɞɤ';
 const VOWEL_RUN = `[${VOWELS}${VOWELS.toUpperCase()}ː˞]+`;
 const PRIMARY_STRESS = new RegExp(`ˈ(${VOWEL_RUN})`, 'g');
 const SECONDARY_STRESS = new RegExp(`ˌ(${VOWEL_RUN})`, 'g');
+const ANY_VOWEL = new RegExp(`[${VOWELS}${VOWELS.toUpperCase()}]`);
 const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
 const COMBINING_ACUTE = '́';
 const COMBINING_GRAVE = '̀';
@@ -276,8 +277,12 @@ function applyStress(text, mode) {
   const escaped = text.replace(/[&<>]/g, c => HTML_ESCAPES[c]);
   if (mode === 'marks') return escaped;
   if (mode === 'accents') {
+    // Sparse marking, as in dictionaries: word-initial primary stress is the
+    // default and goes unwritten; only a primary later in the word earns its
+    // acute. Secondary stress is always the surprise, so it always gets a grave.
     return escaped
-      .replace(PRIMARY_STRESS, (_, run) => markNucleus(run, COMBINING_ACUTE))
+      .replace(PRIMARY_STRESS, (_, run, offset, whole) =>
+        ANY_VOWEL.test(whole.slice(0, offset)) ? markNucleus(run, COMBINING_ACUTE) : run)
       .replace(SECONDARY_STRESS, (_, run) => markNucleus(run, COMBINING_GRAVE))
       .replace(STRESS_MARKS, '');
   }
