@@ -20,7 +20,7 @@ Every way Enigma's default output departs from the raw IPA espeak produces:
 | 6 | punctuation discarded             | source punctuation restored           | Clause-level only; inner marks unrecoverable |
 | 7 | numbers spoken out                | numerals verbatim: `3.14`, `1,000`    | Pure-digit tokens only; `3%` still speaks |
 | 8 | flat text                         | each word titled with its source word | Only when clause word counts align |
-| 9 | θ at full ascender height         | θ at 0.86em                           | Typographic, not textual |
+| 9 | θ at full ascender height         | script ϑ at 0.86em: `tɹuuϑs`          | U+03D1 (capital: U+03F4 ϴ); open cursive form sits in running text |
 
 Everything else — the phoneme inventory, flapping (`ɾ`), rhotacized vowels
 (`ɚ ɝ`), the reduced `ᵻ` — is espeak's own General American output, untouched.
@@ -41,7 +41,7 @@ capitals — is what gives output its archaic, almost-readable character:
 
 > We hold these truths to be self-evident, that all men are created equal.
 >
-> Wii hoʊld ðiiz tɹuuθs təbi sɛlfɛ́vɪdənt, ðæt ɔɔl mɛn ɑɑɹ kɹiiéɪɾᵻd iikwəl.
+> Wii hoʊld ðiiz tɹuuϑs təbi sɛlfɛ́vɪdənt, ðæt ɔɔl mɛn ɑɑɹ kɹiiéɪɾᵻd iikwəl.
 
 ## Stress
 
@@ -136,8 +136,10 @@ count. Titles are trimmed of edge punctuation.
 
 ## Typographic notes
 
-- θ is drawn at ascender height and towers over lowercase IPA; render it at
-  0.86em. (Gentium's `smcp` alternate is shorter but reshapes into a capital Θ.)
+- θ is drawn at ascender height and towers over lowercase IPA; substitute the
+  script form ϑ (U+03D1, capital ϴ U+03F4) and render at 0.86em. All four SIL
+  faces carry both as designed glyphs. This is a display substitution — copied
+  text contains ϑ, not θ.
 - The SIL faces (Gentium, Charis, Doulos SIL, Andika) are the only bundled fonts
   with complete, purpose-drawn IPA glyphs and correct mark stacking; system fonts
   vary.

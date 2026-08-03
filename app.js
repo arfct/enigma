@@ -33,6 +33,12 @@ const PRESETS = {
   ],
   'Phonetics passages': [
     {
+      // Covers every symbol of espeak's General American output: all consonants
+      // including ʒ ŋ ɾ ʔ n̩, every vowel and diphthong, both stress marks.
+      label: 'Every sound',
+      text: 'Usually the azure treasure ship enjoys a rough voyage: think of father and mother going north through the mist, while young Roy, the boy with the yellow toy, chews good food, catches quick jumping fish, and hears her fierce pure voice singing about how they would push the large water button there, by the deep green sea.',
+    },
+    {
       label: 'Rainbow Passage',
       text: 'When the sunlight strikes raindrops in the air, they act as a prism and form a rainbow. The rainbow is a division of white light into many beautiful colors. These take the shape of a long round arch, with its path high above, and its two ends apparently beyond the horizon.',
     },
@@ -330,7 +336,10 @@ const WORD_EDGE_PUNCTUATION = /^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu;
 
 function wordHtml(word, title) {
   let html = applyLength(applyStress(word, stressMode()), lengthMode());
-  html = html.replace(/θ/g, '<span class="theta">θ</span>');
+  // Script theta: same phoneme, but the open cursive form sits better in running
+  // text than the ascender-height θ. Capitalisation can have raised θ to Θ before
+  // this runs, so both cases substitute (ϴ is U+03F4, capital theta symbol).
+  html = html.replace(/θ/g, '<span class="theta">ϑ</span>').replace(/Θ/g, '<span class="theta">ϴ</span>');
   const clean = title.replace(WORD_EDGE_PUNCTUATION, '');
   if (!clean) return html;
   return `<span title="${escapeHtml(clean).replace(/"/g, '&quot;')}">${html}</span>`;
