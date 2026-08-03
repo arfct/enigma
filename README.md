@@ -20,6 +20,9 @@ pronunciations — Carroll's `slˈɪθi tˈoʊvz` transcribes fine.
 espeak discards punctuation and splits its output at clause boundaries, so
 `app.js` re-aligns the source punctuation onto the returned clauses.
 
+The notation — every deliberate departure from raw IPA, with defaults and
+alternatives — is specified in [NOTATION.md](NOTATION.md) for reuse elsewhere.
+
 ## Controls
 
 - **Presets** — phonetics passages, pangrams, tongue twisters, literature
