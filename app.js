@@ -156,7 +156,21 @@ let currentPunctuation = [];
 // splitting rather than excluded with lookbehind, which Safari before 16.4 cannot
 // even parse — it kills the whole module and strands the page on its loading message.
 const DECIMAL_POINT = /(\d)\.(?=\d)/g;
-const CLAUSE_BREAK = /([.,:;?!…—–]+)/g;
+
+// A standalone numeral is not read out — it is silenced for espeak and carried
+// through to the output verbatim, riding the same rails as punctuation. U+E001
+// brackets mark it as a separator during the clause split.
+const NUMBER_TOKEN = /(^|[\s“”"'‘’([{])(\d(?:[\d.,]*\d)?)(?=[\s.,:;?!…—–”"’')\]}]|$)/g;
+const SEPARATOR = /((?:[.,:;?!…—–]|\uE001[^\uE001]*\uE001)+)/g;
+
+function separatorText(separator) {
+  return separator.replace(/\uE001([^\uE001]*)\uE001/g,
+    (_, numeral) => ' ' + numeral.split(DECIMAL_STANDIN).join('.'));
+}
+
+function silenceNumbers(text) {
+  return text.replace(NUMBER_TOKEN, '$1;');
+}
 
 // espeak emits nothing for a fragment with no letters or digits in it, so only
 // those count as clauses — otherwise a trailing quote after a full stop (know.")
@@ -166,22 +180,32 @@ const CAPITALISED = /^[^\p{L}]*\p{Lu}/u;
 const OPENING = /^[\s“”"'‘’([{¿¡]*([“"'‘([{¿¡]+)/;
 const CLOSING = /([”"'’)\]}]+)[\s]*$/;
 
-const DECIMAL_STANDIN = '';
+const DECIMAL_STANDIN = '\uE000';
 
 function clausePunctuation(text) {
-  // Decimal points ride through the clause split disguised as a private-use
-  // character, then reappear as dots in the stored words so titles keep "3.14".
-  const parts = text.replace(DECIMAL_POINT, `$1${DECIMAL_STANDIN}`).split(CLAUSE_BREAK);
+  // Numerals become bracketed separators; decimal points ride through the clause
+  // split disguised as a private-use character and reappear as dots afterwards.
+  const parts = text
+    .replace(NUMBER_TOKEN, '$1\uE001$2\uE001')
+    .replace(DECIMAL_POINT, `$1${DECIMAL_STANDIN}`)
+    .split(SEPARATOR);
   const clauses = [];
   let insideQuote = false;
+  let pending = '';
   for (let i = 0; i < parts.length; i += 2) {
     const body = parts[i] || '';
-    const separator = (parts[i + 1] || '').trim();
+    const separator = separatorText(parts[i + 1] || '');
     if (!SPEAKABLE.test(body)) {
-      if (clauses.length) clauses[clauses.length - 1].after += body.trim() + separator;
+      const insert = body.trim() + separator;
+      if (clauses.length) clauses[clauses.length - 1].after += insert;
+      else pending += insert;
       continue;
     }
     let before = (body.match(OPENING) || ['', ''])[1] || '';
+    if (pending) {
+      before = `${pending.trim()} ${before}`;
+      pending = '';
+    }
     const after = (body.match(CLOSING) || ['', ''])[1] || '';
     // A straight quote is shaped the same opening or closing. One starting a clause
     // while a quotation is already open must be closing the previous clause.
@@ -220,6 +244,12 @@ function clausePunctuation(text) {
         return true;
       })
       .join('');
+  }
+
+  // Input that was nothing but numerals produces no clauses at all; give the
+  // pending text a clause of its own so it still renders.
+  if (!clauses.length && pending.trim()) {
+    clauses.push({ before: pending.trim(), after: '', words: [] });
   }
   return clauses;
 }
@@ -339,10 +369,12 @@ async function transcribe() {
   }
   const id = ++requestId;
   try {
-    const lines = await phonemize(text, voiceSelect.value);
+    const lines = await phonemize(silenceNumbers(text), voiceSelect.value);
     if (id !== requestId) return;
     currentLines = lines;
     currentPunctuation = clausePunctuation(text);
+    // Numeral-only input gives espeak nothing to say but still has a clause to show.
+    if (!currentLines.length && currentPunctuation.length) currentLines = [''];
     render();
   } catch (err) {
     if (id !== requestId) return;
