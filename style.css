@@ -252,6 +252,10 @@ output b {
   font-weight: 400;
 }
 
+output span[title]:hover {
+  color: var(--accent);
+}
+
 /* θ is drawn at ascender height and towers over neighbouring lowercase. Gentium's
    small-cap alternate is shorter but reshapes it into a capital-looking Θ, so scale
    the true glyph down instead. */

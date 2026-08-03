@@ -166,10 +166,12 @@ const CAPITALISED = /^[^\p{L}]*\p{Lu}/u;
 const OPENING = /^[\s“”"'‘’([{¿¡]*([“"'‘([{¿¡]+)/;
 const CLOSING = /([”"'’)\]}]+)[\s]*$/;
 
+const DECIMAL_STANDIN = '';
+
 function clausePunctuation(text) {
-  // The dropped dot never surfaces: clause bodies only feed word counts and
-  // capitalisation flags, never rendered text.
-  const parts = text.replace(DECIMAL_POINT, '$1').split(CLAUSE_BREAK);
+  // Decimal points ride through the clause split disguised as a private-use
+  // character, then reappear as dots in the stored words so titles keep "3.14".
+  const parts = text.replace(DECIMAL_POINT, `$1${DECIMAL_STANDIN}`).split(CLAUSE_BREAK);
   const clauses = [];
   let insideQuote = false;
   for (let i = 0; i < parts.length; i += 2) {
@@ -190,11 +192,16 @@ function clausePunctuation(text) {
     for (const character of body) {
       if (character === '"') insideQuote = !insideQuote;
     }
-    const words = body.trim().split(/\s+/).filter(Boolean);
     clauses.push({
       before,
       after: after + separator,
-      capitals: words.map(word => CAPITALISED.test(word)),
+      // A token with nothing to pronounce (a lone quote mark) produces no espeak
+      // output, so it must not count against the word-for-word alignment.
+      words: body
+        .trim()
+        .split(/\s+/)
+        .filter(word => SPEAKABLE.test(word))
+        .map(word => word.split(DECIMAL_STANDIN).join('.')),
     });
   }
 
@@ -265,33 +272,6 @@ function capitaliseWord(word) {
   return characters.join('');
 }
 
-// espeak runs some function words together (to be → təbi) and expands numbers, so a
-// clause's word count often differs from the source. Positional mapping is only safe
-// when the counts agree; otherwise just the opening word, whose position is certain.
-function applyCapitals(line, capitals) {
-  const words = line.split(' ');
-  if (words.length !== capitals.length) {
-    return capitals[0] ? [capitaliseWord(words[0]), ...words.slice(1)].join(' ') : line;
-  }
-  return words.map((word, i) => (capitals[i] ? capitaliseWord(word) : word)).join(' ');
-}
-
-function joinClauses() {
-  const aligned = currentPunctuation.length === currentLines.length;
-  const lines = currentLines.map((line, i) =>
-    aligned && capitalCheckbox.checked ? applyCapitals(line, currentPunctuation[i].capitals) : line
-  );
-  if (!aligned || !punctuationCheckbox.checked) return lines.join('\n');
-  return lines
-    .map((line, i) => {
-      const { before, after } = currentPunctuation[i];
-      const tail = /^[—–]/.test(after) ? ` ${after}` : after;
-      return before + line + tail;
-    })
-    .join(' ')
-    .trim();
-}
-
 const COMBINING_MACRON = '̄';
 const RAISED_DOT = '·';
 // A long vowel is the base letter, any stress diacritic already placed on it, then ː.
@@ -300,14 +280,53 @@ const LENGTHENED_VOWEL = new RegExp(`([${VOWELS}${VOWELS.toUpperCase()}])([\\u03
 function applyLength(text, mode) {
   if (mode === 'dot') return text.replace(/ː/g, RAISED_DOT);
   if (mode === 'macron') return text.replace(LENGTHENED_VOWEL, `$1$2${COMBINING_MACRON}`);
-  if (mode === 'double') return text.replace(LENGTHENED_VOWEL, '$1$2$1');
+  // The echo vowel stays lowercase even when capitalisation raised the first one.
+  if (mode === 'double') {
+    return text.replace(LENGTHENED_VOWEL, (_, vowel, marks) => vowel + marks + vowel.toLowerCase());
+  }
   return text;
 }
 
+function escapeHtml(text) {
+  return text.replace(/[&<>]/g, c => HTML_ESCAPES[c]);
+}
+
+const WORD_EDGE_PUNCTUATION = /^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu;
+
+function wordHtml(word, title) {
+  let html = applyLength(applyStress(word, stressMode()), lengthMode());
+  html = html.replace(/θ/g, '<span class="theta">θ</span>');
+  const clean = title.replace(WORD_EDGE_PUNCTUATION, '');
+  if (!clean) return html;
+  return `<span title="${escapeHtml(clean).replace(/"/g, '&quot;')}">${html}</span>`;
+}
+
+// espeak runs some function words together (to be → təbi) and expands numbers, so a
+// clause's word count often differs from the source. Word-for-word mapping — for both
+// capitals and hover titles — is only trusted when the counts agree; otherwise each
+// word carries the whole source clause and only the certain opening capital is raised.
 function render() {
-  const stressed = applyStress(joinClauses(), stressMode());
-  const marked = applyLength(stressed, lengthMode());
-  output.innerHTML = marked.replace(/θ/g, '<span class="theta">θ</span>');
+  const aligned = currentPunctuation.length === currentLines.length;
+  const includePunctuation = aligned && punctuationCheckbox.checked;
+  const clauses = currentLines.map((line, i) => {
+    const clause = aligned ? currentPunctuation[i] : null;
+    const source = clause ? clause.words : [];
+    let words = line.split(' ').filter(Boolean);
+    const matched = source.length === words.length;
+    if (clause && capitalCheckbox.checked && words.length && source.length) {
+      if (matched) {
+        words = words.map((word, j) => (CAPITALISED.test(source[j]) ? capitaliseWord(word) : word));
+      } else if (CAPITALISED.test(source[0])) {
+        words[0] = capitaliseWord(words[0]);
+      }
+    }
+    const clauseSource = source.join(' ');
+    const html = words.map((word, j) => wordHtml(word, matched ? source[j] : clauseSource)).join(' ');
+    if (!includePunctuation || !clause) return html;
+    const tail = /^[—–]/.test(clause.after) ? ` ${escapeHtml(clause.after)}` : escapeHtml(clause.after);
+    return escapeHtml(clause.before) + html + tail;
+  });
+  output.innerHTML = clauses.join(includePunctuation ? ' ' : '\n').trim();
 }
 
 async function transcribe() {
