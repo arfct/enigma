@@ -33,10 +33,11 @@ const PRESETS = {
   ],
   'Phonetics passages': [
     {
-      // Covers every symbol of espeak's General American output: all consonants
-      // including ʒ ŋ ɾ ʔ n̩, every vowel and diphthong, both stress marks.
+      // One story verified to produce every symbol of espeak's General American
+      // output: all consonants including ʒ ŋ ɾ ʔ n̩, every vowel and diphthong,
+      // both stress marks, and the reduced ᵻ (in "waited").
       label: 'Every sound',
-      text: 'Usually the azure treasure ship enjoys a rough voyage: think of father and mother going north through the mist, while young Roy, the boy with the yellow toy, chews good food, catches quick jumping fish, and hears her fierce pure voice singing about how they would push the large water button there, by the deep green sea.',
+      text: 'Usually the weather was calm, but that night a huge storm caught the old fisherman far from shore. Thunder crashed, and azure waves rose like dark mountains. He pushed through the water, gripping his little wooden boat and thinking of his young son Roy, asleep at home. First the sail tore; then the rudder snapped. "Courage," he said, in a strange, measured voice. When morning came, he watched the deep green sea turn gold, fixed the torn sail with a button and good thread, and enjoyed the long, quiet voyage home, where the boy had waited all night on the beach, waving a yellow toy ship.',
     },
     {
       label: 'Rainbow Passage',
